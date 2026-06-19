@@ -88,7 +88,12 @@ export class BackendClientService {
   }
 
   validateEmail(email: string, role?: string, tenantId?: string | null) {
-    return this.send(BackendPatterns.AUTH_VALIDATE_EMAIL, { email, role }, tenantId);
+    return this.send(
+      BackendPatterns.AUTH_VALIDATE_EMAIL,
+      { email, role },
+      tenantId,
+      { allowMissingTenant: true },
+    );
   }
 
   updatePassword(email: string, newPassword: string, tenantId?: string | null) {
@@ -96,6 +101,7 @@ export class BackendClientService {
       BackendPatterns.AUTH_UPDATE_PASSWORD,
       { email, newPassword },
       tenantId,
+      { allowMissingTenant: true },
     );
   }
 

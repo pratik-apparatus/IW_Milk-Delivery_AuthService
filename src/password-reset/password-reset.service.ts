@@ -8,8 +8,6 @@ import { MailClientService } from '../microservices/mail-client.service';
 
 @Injectable()
 export class PasswordResetService {
-  private readonly defaultTenantId = process.env.DEFAULT_TENANT_ID || '';
-
   constructor(
     private readonly jwtService: JwtService,
     private readonly backendClient: BackendClientService,
@@ -17,10 +15,11 @@ export class PasswordResetService {
   ) {}
 
   async forgotPassword(dto: ForgotPasswordDto) {
-    const { email, role } = dto;
+    const email = dto.email.trim().toLowerCase();
+    const { role } = dto;
 
     try {
-      await this.backendClient.validateEmail(email, role, this.defaultTenantId);
+      await this.backendClient.validateEmail(email, role);
     } catch {
       return {
         message: 'If the email exists, a password reset link has been sent',
@@ -63,7 +62,6 @@ export class PasswordResetService {
       await this.backendClient.updatePassword(
         resetPayload.email,
         hashedPassword,
-        this.defaultTenantId,
       );
     } catch {
       throw new BadRequestException('Failed to update password');

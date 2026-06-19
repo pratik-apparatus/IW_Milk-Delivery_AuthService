@@ -10,12 +10,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BackendClientModule } from './microservices/backend-client.module';
 import { MailClientModule } from './microservices/mail-client.module';
+import { getConfigModuleOptions } from './config/load-env';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+    ConfigModule.forRoot(getConfigModuleOptions()),
     BackendClientModule,
     MailClientModule,
     AuthModule,

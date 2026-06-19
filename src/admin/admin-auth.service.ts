@@ -49,6 +49,7 @@ export class AdminAuthService {
       role: AdminRole;
       tenantId: string | null;
       tenant: Record<string, unknown> | null;
+      billing: Record<string, unknown> | null;
     };
 
     try {
@@ -83,6 +84,7 @@ export class AdminAuthService {
       message: 'Login successful',
       ...tokens,
       tenant: loginData.tenant,
+      billing: loginData.billing ?? null,
     };
   }
 }

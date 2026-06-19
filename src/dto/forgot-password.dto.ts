@@ -8,7 +8,7 @@ export enum UserRole {
 }
 
 export class ForgotPasswordDto {
-  @ApiProperty({ example: 'user@example.com', description: 'User email' })
+  @ApiProperty({ example: 'pratik.p@apparatus.solutions', description: 'User email' })
   @IsEmail()
   @IsNotEmpty()
   email: string;
