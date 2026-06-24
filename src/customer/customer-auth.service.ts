@@ -26,8 +26,9 @@ export class CustomerAuthService {
     const { phone } = dto;
     const tenantId = this.resolveTenantId(tenantIdHeader);
 
+    let customerResult: { isNewCustomer?: boolean };
     try {
-      await this.backendClient.findOrCreateCustomer(
+      customerResult = await this.backendClient.findOrCreateCustomer(
         phone,
         tenantId || this.defaultTenantId,
       );
@@ -38,13 +39,17 @@ export class CustomerAuthService {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpHash = await bcrypt.hash(otp, 10);
     const otpSessionToken = this.jwtService.generateOtpSessionToken(phone, otpHash);
-    await this.smsService.sendOtp(phone, otp, 'otp_login');
+    const { sent: smsSent } = await this.smsService.sendOtp(phone, otp, 'otp_login');
+
+    const exposeOtp =
+      !smsSent || process.env.NODE_ENV === 'development';
 
     return {
       message: 'OTP sent successfully',
       otpSessionToken,
       skipOtp: false,
-      ...(process.env.NODE_ENV === 'development' && { otp }),
+      isNewCustomer: customerResult.isNewCustomer ?? false,
+      ...(exposeOtp && { otp }),
     };
   }
 

@@ -28,13 +28,23 @@ export class SmsService {
     }
   }
 
-  async sendOtp(phone: string, otp: string, templateKey: string = 'otp_login') {
+  isConfigured(): boolean {
+    return Boolean(this.authKey && (this.templateId || Object.keys(this.templateMap).length > 0));
+  }
+
+  async sendOtp(
+    phone: string,
+    otp: string,
+    templateKey: string = 'otp_login',
+  ): Promise<{ sent: boolean }> {
     const authKey = this.authKey;
     const templateId = this.templateMap[templateKey] || this.templateId;
 
     if (!authKey || !templateId) {
-      this.logger.error('MSG91_AUTH_KEY or MSG91_OTP_TEMPLATE_ID is missing in .env');
-      throw new InternalServerErrorException('SMS Configuration Missing');
+      this.logger.warn(
+        'SMS provider not configured — skipping send; OTP is returned in the API response for testing',
+      );
+      return { sent: false };
     }
 
     try {
@@ -66,6 +76,7 @@ export class SmsService {
       }
 
       this.logger.log(`OTP sent successfully via MSG91 to ${formattedPhone}`);
+      return { sent: true };
     } catch (error) {
       const errorData = error.response?.data || error.message;
       this.logger.error('MSG91 connection error:', JSON.stringify(errorData));
