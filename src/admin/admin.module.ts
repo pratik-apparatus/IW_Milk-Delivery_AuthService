@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
-import { AdminAuthController } from './admin-auth.controller';
-import { AdminAuthService } from './admin-auth.service';
-import { CommonAuthModule } from '../common/common-auth.module';
+import { Module } from "@nestjs/common";
+import { AdminAuthController } from "./admin-auth.controller";
+import { AdminAuthService } from "./admin-auth.service";
+import { CommonAuthModule } from "../common/common-auth.module";
 
 @Module({
   imports: [CommonAuthModule],
@@ -9,4 +9,3 @@ import { CommonAuthModule } from '../common/common-auth.module';
   providers: [AdminAuthService],
 })
 export class AdminModule {}
-

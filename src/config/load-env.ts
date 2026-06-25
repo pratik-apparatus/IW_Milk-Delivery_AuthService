@@ -1,15 +1,15 @@
-import { config } from 'dotenv';
-import { existsSync } from 'fs';
-import { resolve } from 'path';
+import { config } from "dotenv";
+import { existsSync } from "fs";
+import { resolve } from "path";
 
-const DEV_ENV_FILE = '.env.dev';
-const PROD_ENV_FILE = '.env';
+const DEV_ENV_FILE = ".env.dev";
+const PROD_ENV_FILE = ".env";
 
 export function resolveEnvFile(): string {
-  const nodeEnv = (process.env.NODE_ENV || '').toLowerCase();
-  const appEnv = (process.env.APP_ENV || '').toLowerCase();
+  const nodeEnv = (process.env.NODE_ENV || "").toLowerCase();
+  const appEnv = (process.env.APP_ENV || "").toLowerCase();
 
-  if (nodeEnv === 'development' || appEnv === 'development') {
+  if (nodeEnv === "development" || appEnv === "development") {
     return DEV_ENV_FILE;
   }
 

@@ -1,88 +1,91 @@
-import { Controller, Post, Body, Headers } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
-import { CustomerAuthService } from './customer-auth.service';
-import { CustomerLoginDto } from '../dto/customer-login.dto';
-import { VerifyOtpDto } from '../dto/verify-otp.dto';
+import { Controller, Post, Body, Headers } from "@nestjs/common";
+import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from "@nestjs/swagger";
+import { CustomerAuthService } from "./customer-auth.service";
+import { CustomerLoginDto } from "../dto/customer-login.dto";
+import { VerifyOtpDto } from "../dto/verify-otp.dto";
 
-@ApiTags('Customer Authentication')
-@Controller('auth/customer')
+@ApiTags("Customer Authentication")
+@Controller("auth/customer")
 export class CustomerAuthController {
   constructor(private readonly customerAuthService: CustomerAuthService) {}
 
-  @Post('login')
-  @ApiHeader({ name: 'x-tenant-id', required: false })
+  @Post("login")
+  @ApiHeader({ name: "x-tenant-id", required: false })
   @ApiOperation({
-    summary: 'Customer sign-in — sends OTP and otpSessionToken',
+    summary: "Customer sign-in — sends OTP and otpSessionToken",
     description:
-      'Existing customers receive an OTP. When SMS is not configured, otp is included in the response for frontend testing.',
+      "Existing customers receive an OTP. When SMS is not configured, otp is included in the response for frontend testing.",
   })
   @ApiResponse({
     status: 200,
-    description: 'OTP sent successfully',
+    description: "OTP sent successfully",
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        message: { type: 'string', example: 'OTP sent successfully' },
-        otpSessionToken: { type: 'string' },
-        skipOtp: { type: 'boolean', example: false },
-        isNewCustomer: { type: 'boolean', example: false },
+        message: { type: "string", example: "OTP sent successfully" },
+        otpSessionToken: { type: "string" },
+        skipOtp: { type: "boolean", example: false },
+        isNewCustomer: { type: "boolean", example: false },
         otp: {
-          type: 'string',
+          type: "string",
           description:
-            'Returned when SMS provider is not configured, or in development mode',
+            "Returned when SMS provider is not configured, or in development mode",
         },
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Invalid phone number' })
+  @ApiResponse({ status: 400, description: "Invalid phone number" })
   async login(
     @Body() dto: CustomerLoginDto,
-    @Headers('x-tenant-id') tenantId?: string,
+    @Headers("x-tenant-id") tenantId?: string,
   ) {
     return this.customerAuthService.requestOtp(dto, tenantId);
   }
 
-  @Post('signup')
-  @ApiHeader({ name: 'x-tenant-id', required: false })
+  @Post("signup")
+  @ApiHeader({ name: "x-tenant-id", required: false })
   @ApiOperation({
-    summary: 'Customer sign-up — sends OTP and otpSessionToken',
+    summary: "Customer sign-up — sends OTP and otpSessionToken",
     description:
-      'Creates a guest customer if the phone is new, then sends OTP. Same response shape as login.',
+      "Creates a guest customer if the phone is new, then sends OTP. Same response shape as login.",
   })
-  @ApiResponse({ status: 200, description: 'OTP sent successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid phone number' })
+  @ApiResponse({ status: 200, description: "OTP sent successfully" })
+  @ApiResponse({ status: 400, description: "Invalid phone number" })
   async signup(
     @Body() dto: CustomerLoginDto,
-    @Headers('x-tenant-id') tenantId?: string,
+    @Headers("x-tenant-id") tenantId?: string,
   ) {
     return this.customerAuthService.requestOtp(dto, tenantId);
   }
 
-  @Post('resend-otp')
-  @ApiHeader({ name: 'x-tenant-id', required: false })
+  @Post("resend-otp")
+  @ApiHeader({ name: "x-tenant-id", required: false })
   @ApiOperation({
-    summary: 'Resend OTP for sign-up or sign-in',
-    description: 'Issues a new OTP and otpSessionToken for the same phone number.',
+    summary: "Resend OTP for sign-up or sign-in",
+    description:
+      "Issues a new OTP and otpSessionToken for the same phone number.",
   })
-  @ApiResponse({ status: 200, description: 'OTP resent successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid phone number' })
+  @ApiResponse({ status: 200, description: "OTP resent successfully" })
+  @ApiResponse({ status: 400, description: "Invalid phone number" })
   async resendOtp(
     @Body() dto: CustomerLoginDto,
-    @Headers('x-tenant-id') tenantId?: string,
+    @Headers("x-tenant-id") tenantId?: string,
   ) {
     return this.customerAuthService.requestOtp(dto, tenantId);
   }
 
-  @Post('verify-otp')
-  @ApiHeader({ name: 'x-tenant-id', required: false })
-  @ApiOperation({ summary: 'Verify OTP and get access token' })
-  @ApiResponse({ status: 200, description: 'OTP verified, access token returned' })
-  @ApiResponse({ status: 401, description: 'Invalid or expired OTP' })
+  @Post("verify-otp")
+  @ApiHeader({ name: "x-tenant-id", required: false })
+  @ApiOperation({ summary: "Verify OTP and get access token" })
+  @ApiResponse({
+    status: 200,
+    description: "OTP verified, access token returned",
+  })
+  @ApiResponse({ status: 401, description: "Invalid or expired OTP" })
   async verifyOtp(
     @Body() dto: VerifyOtpDto,
-    @Headers('x-tenant-id') tenantId?: string,
+    @Headers("x-tenant-id") tenantId?: string,
   ) {
     return this.customerAuthService.verifyOtp(dto, tenantId);
   }
 }
-

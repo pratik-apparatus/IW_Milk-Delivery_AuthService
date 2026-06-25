@@ -1,10 +1,14 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
-import { JwtService } from '../jwt/jwt.service';
-import { ForgotPasswordDto } from '../dto/forgot-password.dto';
-import { ResetPasswordDto } from '../dto/reset-password.dto';
-import { BackendClientService } from '../microservices/backend-client.service';
-import { MailClientService } from '../microservices/mail-client.service';
+import {
+  Injectable,
+  BadRequestException,
+  UnauthorizedException,
+} from "@nestjs/common";
+import * as bcrypt from "bcrypt";
+import { JwtService } from "../jwt/jwt.service";
+import { ForgotPasswordDto } from "../dto/forgot-password.dto";
+import { ResetPasswordDto } from "../dto/reset-password.dto";
+import { BackendClientService } from "../microservices/backend-client.service";
+import { MailClientService } from "../microservices/mail-client.service";
 
 @Injectable()
 export class PasswordResetService {
@@ -22,7 +26,7 @@ export class PasswordResetService {
       await this.backendClient.validateEmail(email, role);
     } catch {
       return {
-        message: 'If the email exists, a password reset link has been sent',
+        message: "If the email exists, a password reset link has been sent",
       };
     }
 
@@ -38,11 +42,11 @@ export class PasswordResetService {
         frontendUrl: process.env.FRONTEND_URL,
       });
     } catch (error) {
-      console.error('Failed to send password reset email:', error);
+      console.error("Failed to send password reset email:", error);
     }
 
     return {
-      message: 'If the email exists, a password reset link has been sent',
+      message: "If the email exists, a password reset link has been sent",
     };
   }
 
@@ -53,7 +57,7 @@ export class PasswordResetService {
     try {
       resetPayload = this.jwtService.verifyResetToken(token);
     } catch {
-      throw new UnauthorizedException('Invalid or expired reset token');
+      throw new UnauthorizedException("Invalid or expired reset token");
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -64,11 +68,11 @@ export class PasswordResetService {
         hashedPassword,
       );
     } catch {
-      throw new BadRequestException('Failed to update password');
+      throw new BadRequestException("Failed to update password");
     }
 
     return {
-      message: 'Password reset successfully',
+      message: "Password reset successfully",
     };
   }
 }

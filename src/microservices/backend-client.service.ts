@@ -1,9 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom, timeout } from 'rxjs';
-import { BACKEND_MS_CLIENT, BackendPatterns } from './patterns';
-import { RpcEnvelope } from './rpc.types';
+import { Inject, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { ClientProxy } from "@nestjs/microservices";
+import { firstValueFrom, timeout } from "rxjs";
+import { BACKEND_MS_CLIENT, BackendPatterns } from "./patterns";
+import { RpcEnvelope } from "./rpc.types";
 
 @Injectable()
 export class BackendClientService {
@@ -15,9 +15,9 @@ export class BackendClientService {
     private readonly configService: ConfigService,
   ) {
     this.internalToken =
-      this.configService.get<string>('INTERNAL_SERVICE_TOKEN') || '';
+      this.configService.get<string>("INTERNAL_SERVICE_TOKEN") || "";
     this.defaultTenantId =
-      this.configService.get<string>('DEFAULT_TENANT_ID') || '';
+      this.configService.get<string>("DEFAULT_TENANT_ID") || "";
   }
 
   private async send<T>(
@@ -41,28 +41,28 @@ export class BackendClientService {
   }
 
   getRpcStatus(error: unknown): number | undefined {
-    if (!error || typeof error !== 'object') {
+    if (!error || typeof error !== "object") {
       return undefined;
     }
     const record = error as Record<string, unknown>;
-    if (typeof record.status === 'number') {
+    if (typeof record.status === "number") {
       return record.status;
     }
-    if (typeof record.statusCode === 'number') {
+    if (typeof record.statusCode === "number") {
       return record.statusCode;
     }
 
-    const message = String(record.message || '').toLowerCase();
+    const message = String(record.message || "").toLowerCase();
     if (
-      message.includes('invalid credentials') ||
-      message.includes('unauthorized') ||
-      message.includes('password not set') ||
-      message.includes('admin user not found')
+      message.includes("invalid credentials") ||
+      message.includes("unauthorized") ||
+      message.includes("password not set") ||
+      message.includes("admin user not found")
     ) {
       return 401;
     }
 
-    if (record.status === 'error' && message) {
+    if (record.status === "error" && message) {
       return 401;
     }
 
@@ -151,11 +151,8 @@ export class BackendClientService {
     role: string;
     tenantId?: string | null;
   }) {
-    return this.send(
-      BackendPatterns.ADMIN_CREATE,
-      payload,
-      payload.tenantId,
-      { allowMissingTenant: true },
-    );
+    return this.send(BackendPatterns.ADMIN_CREATE, payload, payload.tenantId, {
+      allowMissingTenant: true,
+    });
   }
 }

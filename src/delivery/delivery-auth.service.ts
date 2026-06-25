@@ -1,12 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
-import { LoginDto } from '../dto/login.dto';
-import { TokenIssuerService } from '../common/token-issuer.service';
-import { BackendClientService } from '../microservices/backend-client.service';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import * as bcrypt from "bcrypt";
+import { LoginDto } from "../dto/login.dto";
+import { TokenIssuerService } from "../common/token-issuer.service";
+import { BackendClientService } from "../microservices/backend-client.service";
 
 @Injectable()
 export class DeliveryAuthService {
-  private readonly defaultTenantId = process.env.DEFAULT_TENANT_ID || '';
+  private readonly defaultTenantId = process.env.DEFAULT_TENANT_ID || "";
 
   constructor(
     private readonly tokenIssuerService: TokenIssuerService,
@@ -14,7 +14,7 @@ export class DeliveryAuthService {
   ) {}
 
   private resolveTenantId(tenantIdHeader?: string) {
-    return (tenantIdHeader || this.defaultTenantId || '').trim() || null;
+    return (tenantIdHeader || this.defaultTenantId || "").trim() || null;
   }
 
   async login(dto: LoginDto, tenantIdHeader?: string) {
@@ -25,31 +25,31 @@ export class DeliveryAuthService {
     try {
       loginData = await this.backendClient.getLoginData(
         email,
-        'DELIVERY_PARTNER',
+        "DELIVERY_PARTNER",
         tenantId || this.defaultTenantId,
       );
     } catch {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     const isPasswordValid = await bcrypt.compare(password, loginData.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
-    if (loginData.role !== 'DELIVERY_PARTNER') {
-      throw new UnauthorizedException('Access denied');
+    if (loginData.role !== "DELIVERY_PARTNER") {
+      throw new UnauthorizedException("Access denied");
     }
 
     const tokens = await this.tokenIssuerService.issueTokens({
       userId: loginData.userId,
-      role: 'DELIVERY_PARTNER',
+      role: "DELIVERY_PARTNER",
       tenantId: loginData.tenantId || tenantId,
       identifier: loginData.identifier,
     });
 
     return {
-      message: 'Login successful',
+      message: "Login successful",
       ...tokens,
     };
   }
