@@ -1,9 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom, timeout } from 'rxjs';
-import { MAIL_MS_CLIENT, MailPatterns } from './patterns';
-import { RpcEnvelope } from './rpc.types';
+import { Inject, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { ClientProxy } from "@nestjs/microservices";
+import { firstValueFrom, timeout } from "rxjs";
+import { MAIL_MS_CLIENT, MailPatterns } from "./patterns";
+import { RpcEnvelope } from "./rpc.types";
 
 @Injectable()
 export class MailClientService {
@@ -14,7 +14,7 @@ export class MailClientService {
     private readonly configService: ConfigService,
   ) {
     this.internalToken =
-      this.configService.get<string>('INTERNAL_SERVICE_TOKEN') || '';
+      this.configService.get<string>("INTERNAL_SERVICE_TOKEN") || "";
   }
 
   private async send<T>(pattern: object, data: unknown): Promise<T> {

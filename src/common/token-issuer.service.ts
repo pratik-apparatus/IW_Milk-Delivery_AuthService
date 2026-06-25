@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { JwtService } from '../jwt/jwt.service';
-import { BackendClientService } from '../microservices/backend-client.service';
+import { Injectable } from "@nestjs/common";
+import { JwtService } from "../jwt/jwt.service";
+import { BackendClientService } from "../microservices/backend-client.service";
 
 @Injectable()
 export class TokenIssuerService {
-  private readonly defaultTenantId = process.env.DEFAULT_TENANT_ID || '';
+  private readonly defaultTenantId = process.env.DEFAULT_TENANT_ID || "";
 
   constructor(
     private readonly jwtService: JwtService,

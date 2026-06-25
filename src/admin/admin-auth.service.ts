@@ -1,9 +1,14 @@
-import { BadRequestException, Injectable, UnauthorizedException, Logger } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
-import { LoginDto } from '../dto/login.dto';
-import { AdminRole, AdminSignupDto } from 'src/dto/admin-signup.dto';
-import { TokenIssuerService } from '../common/token-issuer.service';
-import { BackendClientService } from '../microservices/backend-client.service';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+  Logger,
+} from "@nestjs/common";
+import * as bcrypt from "bcrypt";
+import { LoginDto } from "../dto/login.dto";
+import { AdminRole, AdminSignupDto } from "src/dto/admin-signup.dto";
+import { TokenIssuerService } from "../common/token-issuer.service";
+import { BackendClientService } from "../microservices/backend-client.service";
 
 @Injectable()
 export class AdminAuthService {
@@ -20,21 +25,21 @@ export class AdminAuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
-      const response = await this.backendClient.createAdmin({
+      const response = (await this.backendClient.createAdmin({
         username,
         email,
         password: hashedPassword,
         phone,
         role: role || AdminRole.ADMIN,
         tenantId,
-      }) as { id: string };
+      })) as { id: string };
 
       return {
-        message: 'Admin created successfully',
+        message: "Admin created successfully",
         adminId: response.id,
       };
     } catch (error: any) {
-      throw new BadRequestException(error?.message || 'Admin creation failed');
+      throw new BadRequestException(error?.message || "Admin creation failed");
     }
   }
 
@@ -53,21 +58,23 @@ export class AdminAuthService {
     };
 
     try {
-      loginData = (await this.backendClient.getAdminLoginData(email)) as typeof loginData;
+      loginData = (await this.backendClient.getAdminLoginData(
+        email,
+      )) as typeof loginData;
     } catch (error: any) {
       if (this.backendClient.getRpcStatus(error) === 401) {
-        throw new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException("Invalid credentials");
       }
-      throw new UnauthorizedException('Login failed - Backend unavailable?');
+      throw new UnauthorizedException("Login failed - Backend unavailable?");
     }
 
     const isPasswordValid = await bcrypt.compare(password, loginData.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     if (![AdminRole.ADMIN, AdminRole.SUPER_ADMIN].includes(loginData.role)) {
-      throw new UnauthorizedException('Access denied');
+      throw new UnauthorizedException("Access denied");
     }
 
     const tokenTenantId =
@@ -81,7 +88,7 @@ export class AdminAuthService {
     });
 
     return {
-      message: 'Login successful',
+      message: "Login successful",
       ...tokens,
       tenant: loginData.tenant,
       billing: loginData.billing ?? null,

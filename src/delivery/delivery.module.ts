@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
-import { DeliveryAuthController } from './delivery-auth.controller';
-import { DeliveryAuthService } from './delivery-auth.service';
-import { CommonAuthModule } from '../common/common-auth.module';
+import { Module } from "@nestjs/common";
+import { DeliveryAuthController } from "./delivery-auth.controller";
+import { DeliveryAuthService } from "./delivery-auth.service";
+import { CommonAuthModule } from "../common/common-auth.module";
 
 @Module({
   imports: [CommonAuthModule],
@@ -9,4 +9,3 @@ import { CommonAuthModule } from '../common/common-auth.module';
   providers: [DeliveryAuthService],
 })
 export class DeliveryModule {}
-

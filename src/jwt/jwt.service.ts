@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import * as jwt from 'jsonwebtoken';
-import { Secret } from 'jsonwebtoken';
+import { Injectable } from "@nestjs/common";
+import * as jwt from "jsonwebtoken";
+import { Secret } from "jsonwebtoken";
 
 export interface JwtPayload {
   sub: string;
@@ -17,14 +17,11 @@ export interface OtpSessionPayload {
 
 @Injectable()
 export class JwtService {
-  private readonly accessTokenSecret: Secret =
-    process.env.JWT_SECRET 
+  private readonly accessTokenSecret: Secret = process.env.JWT_SECRET;
 
-  private readonly otpTokenSecret: Secret =
-    process.env.OTP_SECRET 
+  private readonly otpTokenSecret: Secret = process.env.OTP_SECRET;
 
-  private readonly resetTokenSecret: Secret =
-    process.env.RESET_SECRET 
+  private readonly resetTokenSecret: Secret = process.env.RESET_SECRET;
 
   generateAccessToken(payload: {
     sub: string;
@@ -32,7 +29,8 @@ export class JwtService {
     tenantId?: string | null;
   }): string {
     return jwt.sign(payload, this.accessTokenSecret, {
-      expiresIn: (process.env.ACCESS_TOKEN_EXPIRY ) as jwt.SignOptions['expiresIn'],
+      expiresIn: process.env
+        .ACCESS_TOKEN_EXPIRY as jwt.SignOptions["expiresIn"],
     });
   }
 
@@ -41,11 +39,9 @@ export class JwtService {
   }
 
   generateOtpSessionToken(phone: string, otpHash: string): string {
-    return jwt.sign(
-      { phone, otpHash },
-      this.otpTokenSecret,
-      { expiresIn: process.env.OTP_SESSION_EXPIRY  as jwt.SignOptions['expiresIn'] },
-    );
+    return jwt.sign({ phone, otpHash }, this.otpTokenSecret, {
+      expiresIn: process.env.OTP_SESSION_EXPIRY as jwt.SignOptions["expiresIn"],
+    });
   }
 
   verifyOtpSessionToken(token: string): OtpSessionPayload {
@@ -54,7 +50,7 @@ export class JwtService {
 
   generateResetToken(payload: { sub: string; email: string }): string {
     return jwt.sign(payload, this.resetTokenSecret, {
-      expiresIn: process.env.RESET_TOKEN_EXPIRY  as jwt.SignOptions['expiresIn'],
+      expiresIn: process.env.RESET_TOKEN_EXPIRY as jwt.SignOptions["expiresIn"],
     });
   }
 
