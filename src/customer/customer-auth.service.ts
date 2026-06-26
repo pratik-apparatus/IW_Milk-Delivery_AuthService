@@ -26,6 +26,14 @@ export class CustomerAuthService {
     return (tenantIdHeader || this.defaultTenantId || "").trim() || null;
   }
 
+  private shouldExposeOtpInResponse(smsSent: boolean): boolean {
+    if (process.env.EXPOSE_OTP_IN_RESPONSE === "true") {
+      return true;
+    }
+
+    return !smsSent || process.env.NODE_ENV === "development";
+  }
+
   async requestOtp(dto: CustomerLoginDto, tenantIdHeader?: string) {
     const { phone } = dto;
     const tenantId = this.resolveTenantId(tenantIdHeader);
@@ -46,13 +54,16 @@ export class CustomerAuthService {
       phone,
       otpHash,
     );
-    const { sent: smsSent } = await this.smsService.sendOtp(
-      phone,
-      otp,
-      "otp_login",
-    );
 
-    const exposeOtp = !smsSent || process.env.NODE_ENV === "development";
+    let smsSent = false;
+    try {
+      const result = await this.smsService.sendOtp(phone, otp, "otp_login");
+      smsSent = result.sent;
+    } catch {
+      smsSent = false;
+    }
+
+    const exposeOtp = this.shouldExposeOtpInResponse(smsSent);
 
     return {
       message: "OTP sent successfully",
