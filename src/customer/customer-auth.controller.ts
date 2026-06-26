@@ -49,7 +49,24 @@ export class CustomerAuthController {
     description:
       "Creates a guest customer if the phone is new, then sends OTP. Same response shape as login.",
   })
-  @ApiResponse({ status: 200, description: "OTP sent successfully" })
+  @ApiResponse({
+    status: 200,
+    description: "OTP sent successfully",
+    schema: {
+      type: "object",
+      properties: {
+        message: { type: "string", example: "OTP sent successfully" },
+        otpSessionToken: { type: "string" },
+        skipOtp: { type: "boolean", example: false },
+        isNewCustomer: { type: "boolean", example: true },
+        otp: {
+          type: "string",
+          description:
+            "Returned when EXPOSE_OTP_IN_RESPONSE=true, SMS is not configured, or in development mode",
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 400, description: "Invalid phone number" })
   async signup(
     @Body() dto: CustomerLoginDto,
