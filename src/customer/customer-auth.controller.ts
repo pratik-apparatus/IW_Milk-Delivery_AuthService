@@ -1,16 +1,17 @@
 import { Controller, Post, Body, Headers } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { CustomerAuthService } from "./customer-auth.service";
 import { CustomerLoginDto } from "../dto/customer-login.dto";
 import { VerifyOtpDto } from "../dto/verify-otp.dto";
+import { ApiTenantHeader } from "../common/decorators/api-tenant-header.decorator";
 
 @ApiTags("Customer Authentication")
+@ApiTenantHeader(false)
 @Controller("auth/customer")
 export class CustomerAuthController {
   constructor(private readonly customerAuthService: CustomerAuthService) {}
 
   @Post("login")
-  @ApiHeader({ name: "x-tenant-id", required: false })
   @ApiOperation({
     summary: "Customer sign-in — sends OTP and otpSessionToken",
     description:
@@ -43,7 +44,6 @@ export class CustomerAuthController {
   }
 
   @Post("signup")
-  @ApiHeader({ name: "x-tenant-id", required: false })
   @ApiOperation({
     summary: "Customer sign-up — sends OTP and otpSessionToken",
     description:
@@ -76,7 +76,6 @@ export class CustomerAuthController {
   }
 
   @Post("resend-otp")
-  @ApiHeader({ name: "x-tenant-id", required: false })
   @ApiOperation({
     summary: "Resend OTP for sign-up or sign-in",
     description:
@@ -92,7 +91,6 @@ export class CustomerAuthController {
   }
 
   @Post("verify-otp")
-  @ApiHeader({ name: "x-tenant-id", required: false })
   @ApiOperation({ summary: "Verify OTP and get access token" })
   @ApiResponse({
     status: 200,

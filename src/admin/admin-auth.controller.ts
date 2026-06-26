@@ -1,8 +1,9 @@
 import { Controller, Post, Body, Headers } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AdminAuthService } from "./admin-auth.service";
 import { LoginDto } from "../dto/login.dto";
 import { AdminSignupDto } from "src/dto/admin-signup.dto";
+import { ApiTenantHeader } from "../common/decorators/api-tenant-header.decorator";
 
 @ApiTags("Admin Authentication")
 @Controller("auth/admin")
@@ -21,7 +22,7 @@ export class AdminAuthController {
   }
 
   @Post("signup")
-  @ApiHeader({ name: "x-tenant-id", required: false })
+  @ApiTenantHeader(false)
   @ApiOperation({ summary: "Admin signup" })
   @ApiResponse({ status: 200, description: "Signup successful" })
   async signup(
