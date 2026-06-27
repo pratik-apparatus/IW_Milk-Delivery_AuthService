@@ -1,12 +1,14 @@
-import { Controller, Post, Body, Headers } from "@nestjs/common";
+import { Controller, Post, Body, Req } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import type { Request } from "express";
 import { CustomerAuthService } from "./customer-auth.service";
 import { CustomerLoginDto } from "../dto/customer-login.dto";
 import { VerifyOtpDto } from "../dto/verify-otp.dto";
 import { ApiTenantHeader } from "../common/decorators/api-tenant-header.decorator";
+import { getTenantIdFromRequest } from "../common/utils/tenant-id.util";
 
 @ApiTags("Customer Authentication")
-@ApiTenantHeader(false)
+@ApiTenantHeader(true)
 @Controller("auth/customer")
 export class CustomerAuthController {
   constructor(private readonly customerAuthService: CustomerAuthService) {}
@@ -36,11 +38,11 @@ export class CustomerAuthController {
     },
   })
   @ApiResponse({ status: 400, description: "Invalid phone number" })
-  async login(
-    @Body() dto: CustomerLoginDto,
-    @Headers("x-tenant-id") tenantId?: string,
-  ) {
-    return this.customerAuthService.requestOtp(dto, tenantId);
+  async login(@Body() dto: CustomerLoginDto, @Req() req: Request) {
+    return this.customerAuthService.requestOtp(
+      dto,
+      getTenantIdFromRequest(req),
+    );
   }
 
   @Post("signup")
@@ -68,11 +70,11 @@ export class CustomerAuthController {
     },
   })
   @ApiResponse({ status: 400, description: "Invalid phone number" })
-  async signup(
-    @Body() dto: CustomerLoginDto,
-    @Headers("x-tenant-id") tenantId?: string,
-  ) {
-    return this.customerAuthService.requestOtp(dto, tenantId);
+  async signup(@Body() dto: CustomerLoginDto, @Req() req: Request) {
+    return this.customerAuthService.requestOtp(
+      dto,
+      getTenantIdFromRequest(req),
+    );
   }
 
   @Post("resend-otp")
@@ -83,11 +85,11 @@ export class CustomerAuthController {
   })
   @ApiResponse({ status: 200, description: "OTP resent successfully" })
   @ApiResponse({ status: 400, description: "Invalid phone number" })
-  async resendOtp(
-    @Body() dto: CustomerLoginDto,
-    @Headers("x-tenant-id") tenantId?: string,
-  ) {
-    return this.customerAuthService.requestOtp(dto, tenantId);
+  async resendOtp(@Body() dto: CustomerLoginDto, @Req() req: Request) {
+    return this.customerAuthService.requestOtp(
+      dto,
+      getTenantIdFromRequest(req),
+    );
   }
 
   @Post("verify-otp")
@@ -97,10 +99,10 @@ export class CustomerAuthController {
     description: "OTP verified, access token returned",
   })
   @ApiResponse({ status: 401, description: "Invalid or expired OTP" })
-  async verifyOtp(
-    @Body() dto: VerifyOtpDto,
-    @Headers("x-tenant-id") tenantId?: string,
-  ) {
-    return this.customerAuthService.verifyOtp(dto, tenantId);
+  async verifyOtp(@Body() dto: VerifyOtpDto, @Req() req: Request) {
+    return this.customerAuthService.verifyOtp(
+      dto,
+      getTenantIdFromRequest(req),
+    );
   }
 }

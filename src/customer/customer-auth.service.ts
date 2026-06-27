@@ -26,6 +26,16 @@ export class CustomerAuthService {
     return (tenantIdHeader || this.defaultTenantId || "").trim() || null;
   }
 
+  private requireTenantId(tenantIdHeader?: string) {
+    const tenantId = this.resolveTenantId(tenantIdHeader);
+    if (!tenantId) {
+      throw new BadRequestException(
+        "Tenant context is required. Pass the x-tenant-id header.",
+      );
+    }
+    return tenantId;
+  }
+
   private shouldExposeOtpInResponse(smsSent: boolean): boolean {
     if (process.env.EXPOSE_OTP_IN_RESPONSE === "true") {
       return true;
@@ -36,13 +46,13 @@ export class CustomerAuthService {
 
   async requestOtp(dto: CustomerLoginDto, tenantIdHeader?: string) {
     const { phone } = dto;
-    const tenantId = this.resolveTenantId(tenantIdHeader);
+    const tenantId = this.requireTenantId(tenantIdHeader);
 
     let customerResult: { isNewCustomer?: boolean };
     try {
       customerResult = await this.backendClient.findOrCreateCustomer(
         phone,
-        tenantId || this.defaultTenantId,
+        tenantId,
       );
     } catch {
       throw new BadRequestException("Failed to process customer request");
@@ -53,6 +63,7 @@ export class CustomerAuthService {
     const otpSessionToken = this.jwtService.generateOtpSessionToken(
       phone,
       otpHash,
+      tenantId,
     );
 
     let smsSent = false;
@@ -76,7 +87,6 @@ export class CustomerAuthService {
 
   async verifyOtp(dto: VerifyOtpDto, tenantIdHeader?: string) {
     const { otp, otpSessionToken } = dto;
-    const tenantId = this.resolveTenantId(tenantIdHeader);
 
     let otpSessionPayload;
     try {
@@ -86,7 +96,26 @@ export class CustomerAuthService {
       throw new UnauthorizedException("Invalid or expired OTP session token");
     }
 
-    const { phone, otpHash } = otpSessionPayload;
+    const { phone, otpHash, tenantId: sessionTenantId } = otpSessionPayload;
+    const headerTenantId = this.resolveTenantId(tenantIdHeader);
+
+    if (
+      sessionTenantId &&
+      headerTenantId &&
+      sessionTenantId !== headerTenantId
+    ) {
+      throw new BadRequestException(
+        "x-tenant-id does not match the tenant used when OTP was sent",
+      );
+    }
+
+    const tenantId = sessionTenantId || headerTenantId;
+    if (!tenantId) {
+      throw new BadRequestException(
+        "Tenant context is required. Pass the x-tenant-id header.",
+      );
+    }
+
     const isOtpValid = await bcrypt.compare(otp, otpHash);
     if (!isOtpValid) {
       throw new UnauthorizedException("Invalid OTP");
@@ -94,10 +123,7 @@ export class CustomerAuthService {
 
     let authData: any;
     try {
-      authData = await this.backendClient.getCustomerAuthData(
-        phone,
-        tenantId || this.defaultTenantId,
-      );
+      authData = await this.backendClient.getCustomerAuthData(phone, tenantId);
     } catch {
       throw new BadRequestException("Failed to retrieve customer data");
     }
