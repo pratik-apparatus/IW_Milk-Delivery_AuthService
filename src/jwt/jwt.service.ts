@@ -13,6 +13,7 @@ export interface JwtPayload {
 export interface OtpSessionPayload {
   phone: string;
   otpHash: string;
+  tenantId?: string;
 }
 
 @Injectable()
@@ -38,9 +39,24 @@ export class JwtService {
     return jwt.verify(token, this.accessTokenSecret) as JwtPayload;
   }
 
-  generateOtpSessionToken(phone: string, otpHash: string): string {
-    return jwt.sign({ phone, otpHash }, this.otpTokenSecret, {
-      expiresIn: process.env.OTP_SESSION_EXPIRY as jwt.SignOptions["expiresIn"],
+  private normalizeExpiry(
+    value: string | undefined,
+    fallback: string,
+  ): jwt.SignOptions["expiresIn"] {
+    const raw = (value || fallback).trim();
+    if (/^\d+$/.test(raw)) {
+      return `${raw}m` as jwt.SignOptions["expiresIn"];
+    }
+    return raw as jwt.SignOptions["expiresIn"];
+  }
+
+  generateOtpSessionToken(
+    phone: string,
+    otpHash: string,
+    tenantId: string,
+  ): string {
+    return jwt.sign({ phone, otpHash, tenantId }, this.otpTokenSecret, {
+      expiresIn: this.normalizeExpiry(process.env.OTP_SESSION_EXPIRY, "5m"),
     });
   }
 
