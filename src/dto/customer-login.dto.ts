@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsString, IsNotEmpty, Matches } from "class-validator";
 
 export class CustomerLoginDto {
-  // only indian numbers 
+  // only indian numbers
   @ApiProperty({ example: "+919876543210", description: "Phone number" })
   @IsString()
   @IsNotEmpty()
