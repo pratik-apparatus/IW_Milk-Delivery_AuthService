@@ -100,9 +100,6 @@ export class CustomerAuthController {
   })
   @ApiResponse({ status: 401, description: "Invalid or expired OTP" })
   async verifyOtp(@Body() dto: VerifyOtpDto, @Req() req: Request) {
-    return this.customerAuthService.verifyOtp(
-      dto,
-      getTenantIdFromRequest(req),
-    );
+    return this.customerAuthService.verifyOtp(dto, getTenantIdFromRequest(req));
   }
 }
